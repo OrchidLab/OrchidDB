@@ -1,5 +1,8 @@
-# Robust and maintanable distributed key-value store written in Zig
 
+![OrchardDB_Dark_V1](https://github.com/user-attachments/assets/516a5f4f-c107-45a6-b597-ea680b5165f6)
+
+
+Robust and maintanable distributed key-value store written in Zig
 ## Architecture
 
 - HashMap: Bespoke hashmap optimised for atomic rapid transactions of key-value byte strings with timestamp support
