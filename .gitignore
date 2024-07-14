@@ -1,3 +1,4 @@
 .orchard.*.*
 .zig-cache
 zig-out
+Images/

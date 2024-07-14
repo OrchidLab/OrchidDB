@@ -1,4 +1,4 @@
-//! File: map.zig
+//! File: hashmap.zig
 //! Author: Aryan Suri: <arysuri at proton dot me>
 //! Description: Orchard, is a distributed key-value store in Zig
 //! Licence: MIT
