@@ -7,10 +7,10 @@
 
 ## Todo
 
-- Add WAL support
-- Full ACID support
-- timestamp (range queries)
-- sharding
+- [ ] Add WAL support
+- [ ] Full ACID support
+- [ ] Timestamp (range queries)
+- [ ] Sharding
 
 ## Usage
 
