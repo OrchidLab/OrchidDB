@@ -4,13 +4,12 @@
 //! Licence: MIT
 //! Note: This HashMap is a derivative of my HashMap source file : https://raw.githubusercontent.com/aryanrsuri/map/master/src/map.zig
 const std = @import("std");
-pub const record = struct { key: []const u8, value: []const u8, version: i64 };
 pub const HashMap = struct {
-    array: []?record,
+    array: []?Entry,
     allocator: std.mem.Allocator,
-
+    pub const Entry = struct { key: []const u8, value: []const u8, version: i64 };
     pub fn init(allocator: std.mem.Allocator, capacity: usize) !@This() {
-        const array: []?record = try allocator.alloc(?record, capacity);
+        const array: []?Entry = try allocator.alloc(?Entry, capacity);
         @memset(array, null);
         return .{ .array = array, .allocator = allocator };
     }
