@@ -3,16 +3,17 @@
 //! Description: Orchard, is a distributed key-value store in Zig
 //! Licence: MIT
 //! Note: This HashMap is a derivative of my HashMap source file : https://raw.githubusercontent.com/aryanrsuri/map/master/src/map.zig
-const std = @import("std");
-pub const record = struct { key: []const u8, value: []const u8, version: i64 };
-pub const HashMap = struct {
-    array: []?record,
-    allocator: std.mem.Allocator,
 
-    pub fn init(allocator: std.mem.Allocator, capacity: usize) !@This() {
-        const array: []?record = try allocator.alloc(?record, capacity);
+const std = @import("std");
+pub const HashMap = struct {
+    array: []?Entry,
+    allocator: std.mem.Allocator,
+    load_factor: usize,
+    pub const Entry = struct { key: []const u8, value: []const u8, version: i64 };
+    pub fn init(allocator: std.mem.Allocator, capacity: usize, load_factor: usize) !@This() {
+        const array: []?Entry = try allocator.alloc(?Entry, capacity);
         @memset(array, null);
-        return .{ .array = array, .allocator = allocator };
+        return .{ .array = array, .allocator = allocator, .load_factor = load_factor };
     }
 
     pub fn deinit(self: *@This()) void {
@@ -110,7 +111,7 @@ pub const HashMap = struct {
 
 test "Hash Map" {
     const allocator = std.testing.allocator;
-    var hm = try HashMap.init(allocator, 6);
+    var hm = try HashMap.init(allocator, 6, (3 / 4));
     defer hm.deinit();
     {
         try hm.set("key1", "4");
