@@ -2,20 +2,26 @@
 //! Author: Aryan Suri: <arysuri at proton dot me>
 //! Description: Orchard, is a distributed key-value store in Zig
 //! Licence: MIT
+
 const std = @import("std");
 const map = @import("hashmap.zig");
-
 pub const OrchardDB = struct {
-    ops: usize = 0,
-    disk: std.fs.File,
     hashmap: *map.HashMap,
     allocator: std.mem.Allocator,
-    pub fn init(allocator: std.mem.Allocator, diskpath: []const u8) !@This() {
-        const disk = try std.fs.cwd().createFile(diskpath, .{ .read = true, .truncate = false });
+
+    // TODO: Persistance fields should be abstracted to a config to allow for in-memory OR persistant store.
+    operations: usize = 0,
+    persistant_to: usize,
+    log: std.fs.File,
+    disk: std.fs.File,
+
+    pub fn init(allocator: std.mem.Allocator, disk_path: []const u8, log_path: []const u8, persistant_to: usize) !@This() {
+        const disk = try std.fs.cwd().createFile(disk_path, .{ .read = true, .truncate = false });
+        const log = try std.fs.cwd().createFile(log_path, .{ .read = true });
         const hashmap = try allocator.create(map.HashMap);
         errdefer allocator.destroy(hashmap);
-        hashmap.* = try map.HashMap.init(allocator, 64);
-        return .{ .hashmap = hashmap, .allocator = allocator, .disk = disk };
+        hashmap.* = try map.HashMap.init(allocator, 1024, (3 / 4));
+        return .{ .hashmap = hashmap, .allocator = allocator, .disk = disk, .log = log, .persistant_to = persistant_to };
     }
 
     pub fn deinit(self: *@This()) void {
@@ -25,9 +31,10 @@ pub const OrchardDB = struct {
     }
 
     pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+        try self.write_to_log("PUT", key, value);
         try self.hashmap.set(key, value);
-        self.ops += 1;
-        if (self.ops > 32) try self.write();
+        self.operations += 1;
+        if (self.operations > self.persistant_to) try self.write_to_disk();
     }
 
     pub fn get(self: *@This(), key: []const u8) ?[]const u8 {
@@ -35,10 +42,11 @@ pub const OrchardDB = struct {
     }
 
     pub fn delete(self: *@This(), key: []const u8) !void {
+        try self.write_to_log("DELETE", key);
         try self.hashmap.delete(key);
     }
 
-    pub fn write(self: *@This()) !void {
+    pub fn write_to_disk(self: *@This()) !void {
         try self.disk.seekTo(0);
         for (self.hashmap.array) |record| {
             if (record) |row| {
@@ -48,13 +56,21 @@ pub const OrchardDB = struct {
             }
         }
         try self.disk.sync();
-        self.ops = 0;
+        self.operations = 0;
+    }
+
+    pub fn write_to_log(self: *@This(), operation: []const u8, key: []const u8, value: []const u8) !void {
+        try self.log.seekFromEnd(0);
+        const enter = try std.fmt.allocPrint(self.allocator, "{s} {s} {s}\n", .{ operation, key, value });
+        defer self.allocator.free(enter);
+        try self.log.writeAll(enter);
+        try self.log.sync();
     }
 };
 
 test "Key Value Store" {
     const alloc = std.testing.allocator;
-    var orchard = try OrchardDB.init(alloc, "./.orchard.1.db");
+    var orchard = try OrchardDB.init(alloc, "./.orchard.1.db", "./.orchard.1.log", 64);
     defer orchard.deinit();
     _ = try orchard.put("key", "1");
     try std.testing.expectEqualStrings("1", orchard.get("key").?);
