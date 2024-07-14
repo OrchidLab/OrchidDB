@@ -7,10 +7,22 @@
 
 ## Todo
 
-- [ ] Add WAL support
-- [ ] Full ACID support
-- [ ] Timestamp (range queries)
+- [ ] WAL support
+- [ ] Actual TCP Server to host OrchardDB
+- [ ] ACID support
+- [ ] Range queries (timestamp)
 - [ ] Sharding
+- [ ] Implement atomic operations and basic transaction support
+- [ ] Add data expiration and automatic cleanup of expired entries
+- [ ] Implement a robust error handling system throughout the codebase
+- [ ] Implement a basic compaction process to reclaim space from deleted entries
+- [ ] Add support for range queries and iteration over key-value pairs
+- [ ] Implement a simple in-memory cache for frequently accessed items
+- [ ] Add basic data validation and sanitization for inputs
+- [ ] Implement a configurable consistency model (e.g., eventual, strong)
+- [ ] Add support for batch operations to improve performance for multiple writes
+- [ ] More complex data types ? (Learn from DenoKV)
+
 
 ## Usage
 
