@@ -46,7 +46,7 @@ pub const OrchardDB = struct {
         try self.hashmap.delete(key);
     }
 
-    pub fn write_to_disk(self: *@This()) !void {
+    fn write_to_disk(self: *@This()) !void {
         try self.disk.seekTo(0);
         for (self.hashmap.array) |record| {
             if (record) |row| {
@@ -59,7 +59,7 @@ pub const OrchardDB = struct {
         self.operations = 0;
     }
 
-    pub fn write_to_log(self: *@This(), operation: []const u8, key: []const u8, value: []const u8) !void {
+    fn write_to_log(self: *@This(), operation: []const u8, key: []const u8, value: []const u8) !void {
         try self.log.seekFromEnd(0);
         const enter = try std.fmt.allocPrint(self.allocator, "{s} {s} {s}\n", .{ operation, key, value });
         defer self.allocator.free(enter);
