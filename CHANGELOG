@@ -1,0 +1,6 @@
+[ MANIFEST ]
+Changelog for OrchardDB
+
+[ RELEASED ]
+v0.0/abe63b2 General purpose distributed KV store in Zig
+
