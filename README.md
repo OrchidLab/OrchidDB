@@ -29,8 +29,8 @@
 ## Usage
 
 
+Adding 4094 items, while deleting a key every 100 items
 ```
-    // Adding 4094 items, while deleting a key every 100 items
     for (1..4096) |i| {
         if (i % 100 == 0) {
             const key = try std.fmt.bufPrint(&keyb, "KEY{d}", .{i - 1});
