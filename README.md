@@ -8,6 +8,8 @@
 ## Todo
 
 - [ ] WAL support
+  - [X] write to wal
+  - [ ] recover method
 - [ ] Actual TCP Server to host OrchardDB
 - [ ] ACID support
 - [ ] Range queries (timestamp)
