@@ -7,22 +7,26 @@
 
 ## Todo
 
+- [X] PUT, GET, DELETE
 - [X] WAL support
   - [X] write to wal
   - [X] recover method
 - [ ] Actual TCP Server to host OrchardDB
-- [ ] ACID support
-- [ ] Range queries (timestamp)
-- [ ] Sharding
-- [ ] Implement atomic operations and basic transaction support
+- [ ] Batch Operations
+- [ ] TTL/Key experiation
+- [ ] Range queries (on version)
+- [ ] HashMap Iterator interface
 - [ ] Add data expiration and automatic cleanup of expired entries
-- [ ] Implement a robust error handling system throughout the codebase
+- [ ] ACID support
+  - [ ] Implement atomic operations and basic transaction support
+- [ ] Sharding
 - [ ] Implement a basic compaction process to reclaim space from deleted entries
-- [ ] Add support for range queries and iteration over key-value pairs
 - [ ] Implement a simple in-memory cache for frequently accessed items
 - [ ] Add basic data validation and sanitization for inputs
+- [ ] Different data types
+- [ ] Auth
+- [ ] Analytics
 - [ ] Implement a configurable consistency model (e.g., eventual, strong)
-- [ ] Add support for batch operations to improve performance for multiple writes
 - [ ] More complex data types ? (Learn from DenoKV)
 
 
