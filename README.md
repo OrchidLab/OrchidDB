@@ -11,11 +11,12 @@
 - [X] WAL support
   - [X] write to wal
   - [X] recover method
+- [ ] Refactor to a Config .{} struct for extended optiosn (TTL, Persistance)
 - [ ] Actual TCP Server to host OrchardDB
 - [ ] Batch Operations
 - [ ] TTL/Key experiation
 - [ ] Range queries (on version)
-- [ ] HashMap Iterator interface
+- [ ] Optional, HashMap Iterator interface
 - [ ] Add data expiration and automatic cleanup of expired entries
 - [ ] ACID support
   - [ ] Implement atomic operations and basic transaction support
