@@ -1,9 +1,9 @@
-const std = @import("std");
-const http = @import("http.zig");
 const OrchardDB = @import("orchard.zig").OrchardDB;
+const std = @import("std");
 const net = std.net;
 const mem = std.mem;
-pub fn serve() !void {
+
+pub fn main() !void {
     var allocator = std.heap.GeneralPurposeAllocator(.{}){};
     const gpa = allocator.allocator();
     var orchard = try OrchardDB.init(gpa, "./.tmp/.orchard.prd1.db", "./.tmp/.orchard.prd1.log", 512);
@@ -40,11 +40,20 @@ pub fn serve() !void {
             "Content-Type: {s}\r\n" ++
             "Content-Length: {}\r\n" ++
             "\r\n";
-        _ = try conn.stream.writer().print(httpHead, .{ "text", request.length });
+        _ = try conn.stream.writer().print(httpHead, .{ "text", request.length + 4 });
         if (std.mem.eql(u8, request.operation, "PUT")) {
-            _ = try conn.stream.writer().print("{s} {s} {s}\n", .{ request.operation, request.key, request.value.? });
-        } else {
-            _ = try conn.stream.writer().print("{s} {s} {any}\n", .{ request.operation, request.key, request.value });
+            try orchard.put(request.key, request.value.?);
+            std.debug.print("[INFO] ({s}) KEY: {s} VALUE: {s}\n", .{ request.operation, request.key, request.value.? });
+            _ = try conn.stream.writer().print("[INFO] ({s}) KEY: {s} VALUE: {s}\n", .{ request.operation, request.key, request.value.? });
+        } else if (std.mem.eql(u8, request.operation, "GET")) {
+            if (orchard.get(request.key)) |value| {
+                std.debug.print("[INFO] ({s}) KEY: {s} VALUE: {s}\n", .{ request.operation, request.key, value });
+                _ = try conn.stream.writer().print("[INFO] ({s}) KEY: {s} VALUE: {s}\n", .{ request.operation, request.key, value });
+            }
+        } else if (std.mem.eql(u8, request.operation, "DELETE")) {
+            try orchard.delete(request.key);
+            std.debug.print("[INFO] ({s}) KEY: {s}\n", .{ request.operation, request.key });
+            _ = try conn.stream.writer().print("[INFO] ({s}) KEY: {s}\n", .{ request.operation, request.key });
         }
 
         // TODO: Perform PUT and GET operations on OrchardDB from the server
@@ -62,6 +71,7 @@ pub const Request = struct {
     value: ?[]const u8,
     length: usize,
 };
+
 pub fn parseRaw(buffer: []const u8) !Request {
     var len: usize = 3;
     var Header = std.mem.tokenizeSequence(u8, buffer, "\r\n");
@@ -81,6 +91,11 @@ pub fn parseRaw(buffer: []const u8) !Request {
     } else if (std.mem.eql(u8, request.path[0..4], "/get")) {
         request.operation = "GET";
         request.key = request.path[5..];
+        request.value = null;
+        len += request.key.len;
+    } else if (std.mem.eql(u8, request.path[0..7], "/delete")) {
+        request.operation = "DELETE";
+        request.key = request.path[8..];
         request.value = null;
         len += request.key.len;
     } else {
