@@ -12,9 +12,9 @@
   - [X] write to wal
   - [X] recover method
 - [ ] Refactor to a Config .{} struct for extended optiosn (TTL, Persistance)
-- [ ] Actual TCP Server to host OrchardDB
+- [X] Actual TCP Server to host OrchardDB
   - [X] Working TCP Server to handle /PUT and /GET operations
-  - [ ] PUT and GET direct the OrchardDB instance
+  - [X] PUT and GET direct the OrchardDB instance
 - [ ] Batch Operations
 - [ ] TTL/Key experiation
 - [ ] Range queries (on version)
