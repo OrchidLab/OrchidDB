@@ -1,4 +1,10 @@
-![OrchardDB_Dark_V1_Banner](https://github.com/user-attachments/assets/e8132d95-b148-4048-a662-0037e2fea008)
+<!--![OrchardDB_Dark_V1_Banner](https://github.com/user-attachments/assets/e8132d95-b148-4048-a662-0037e2fea008)-->
+
+
+<div style="display: flex; flex-direction: row;">
+<img style="margin-top: 100px; width: 150px; border: solid; float: left;" src="https://github.com/user-attachments/assets/fe8719dc-ca20-4adb-b56c-55d4fa562a39" alt="logo"></img>
+<h1 style="margin: 0; float: right">OrchardDB is a fast, robust key-value store in Zig</h1>
+</div>
 
 ## TCP Server Usage
 ```
@@ -20,9 +26,11 @@
 
 ## Architecture
 
-- HashMap: Bespoke hashmap optimised for atomic rapid transactions of key-value byte strings with timestamp support
-- OrchardDB: Managed HashMap Object
-
+- HashMap: In Memory hashmap, supports 1024 len Key/Value bytearrays, each with a timestamp
+- OrchardDB: Managed Orchard DB instance, can be instantiated with In-Memory only (default), or with WAL+DB on Disk storage
+- TCP: Small TCP server for put/get/delete operations
+- REPL: Small REPL for cli DB management
+  
 ## Todo
 
 - [x] Basic Operations
@@ -110,9 +118,6 @@
 - https://github.com/jetzig-framework/jetkv
 
 <hr>
-![ssshape(2)](https://github.com/user-attachments/assets/fe8719dc-ca20-4adb-b56c-55d4fa562a39)
-
-
 
 <img style="margin-top: 50px; width:150px; float:right;" src="https://humanmademark.com/black-logo.png" alt="Human Made Trademark"></img>
 
