@@ -7,31 +7,82 @@
 
 ## Todo
 
-- [X] PUT, GET, DELETE
-- [X] WAL support
-  - [X] write to wal
-  - [X] recover method
-- [ ] Refactor to a Config .{} struct for extended optiosn (TTL, Persistance)
-- [X] Actual TCP Server to host OrchardDB
-  - [X] Working TCP Server to handle /PUT and /GET operations
-  - [X] PUT and GET direct the OrchardDB instance
-- [ ] Batch Operations
-- [ ] TTL/Key experiation
-- [ ] Range queries (on version)
-- [ ] Optional, HashMap Iterator interface
-- [ ] Add data expiration and automatic cleanup of expired entries
-- [ ] ACID support
-  - [ ] Implement atomic operations and basic transaction support
-- [ ] Sharding
-- [ ] Implement a basic compaction process to reclaim space from deleted entries
-- [ ] Implement a simple in-memory cache for frequently accessed items
-- [ ] Add basic data validation and sanitization for inputs
-- [ ] Different data types
-- [ ] Auth
-- [ ] Analytics
-- [ ] Implement a configurable consistency model (e.g., eventual, strong)
-- [ ] More complex data types ? (Learn from DenoKV)
+- [x] Basic Operations
+  - [x] PUT: Insert or update a key-value pair
+  - [x] GET: Retrieve a value by its key
+  - [x] DELETE: Remove a key-value pair
 
+- [x] Write-Ahead Logging (WAL) Support
+  - [x] Write operations to WAL: Ensures durability by logging operations before applying them
+  - [x] Implement recovery method: Allows database restoration from WAL in case of crashes
+
+- [ ] **CRITICAL** Refactor to a Config struct
+  - [ ] Create a configuration structure to manage various database options
+  - [ ] Include options for TTL (Time-To-Live), persistence settings, etc.
+  - [ ] Make the database more flexible and easier to configure
+
+- [x] TCP Server Implementation
+  - [x] Create a working TCP server to handle client connections
+  - [x] Implement /PUT and /GET operations over the network
+  - [x] Integrate OrchardDB instance with the TCP server
+
+- [ ] **CRITICAL** Batch Operations
+  - [ ] Allow multiple operations to be performed in a single request
+  - [ ] Improve efficiency for bulk inserts or updates
+  - [ ] Reduce network overhead for clients performing multiple operations
+
+- [ ] TTL/Key Expiration
+  - [ ] Implement automatic expiration of keys based on a set time-to-live
+  - [ ] Include a cleanup mechanism to remove expired entries
+
+- [ ] Range Queries
+  - [ ] Allow querying for a range of keys based on their version or other criteria
+  - [ ] Implement functionality for time-based or sequential data retrieval
+
+- [ ] HashMap Iterator Interface
+  - [ ] Provide a way to iterate over the HashMap entries
+  - [ ] Create utility functions for operations that need to process all data
+
+- [ ] **CRITICAL** ACID Support
+  - [ ] Implement Atomicity, Consistency, Isolation, and Durability properties
+  - [ ] Include basic transaction support for multi-key operations
+  - [ ] Ensure data integrity in concurrent environments
+
+- [ ] Sharding
+  - [ ] Distribute data across multiple nodes to improve scalability
+  - [ ] Implement a sharding strategy (e.g., range-based, hash-based)
+
+- [ ] Compaction Process
+  - [ ] Implement a mechanism to reclaim space from deleted or expired entries
+  - [ ] Improve storage efficiency over time
+
+- [ ] In-Memory Cache
+  - [ ] Add a caching layer for frequently accessed items
+  - [ ] Improve read performance for hot data
+
+- [ ] Data Validation and Sanitization
+  - [ ] Implement input checks to ensure data integrity
+  - [ ] Prevent potential security issues from malformed inputs
+
+- [ ] Support for Different Data Types
+  - [ ] Extend beyond simple string key-value pairs
+  - [ ] Consider supporting integers, floats, lists, or even JSON objects
+
+- [ ] Authentication and Authorization
+  - [ ] Implement user authentication for secure access
+  - [ ] Add role-based access control for different operations
+
+- [ ] Analytics Features
+  - [ ] Add logging and metrics collection
+  - [ ] Provide insights into database usage and performance
+
+- [ ] Configurable Consistency Model
+  - [ ] Allow users to choose between consistency levels (e.g., eventual, strong)
+  - [ ] Implement mechanisms for tuning performance vs. consistency trade-offs
+
+- [ ] Advanced Data Structures
+  - [ ] Research and potentially implement more complex data types
+  - [ ] Look into DenoKV for inspiration on advanced features
 
 ## Usage
 
