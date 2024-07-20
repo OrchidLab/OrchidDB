@@ -6,10 +6,15 @@
 >> Starting server
 >> Listening on 0.0.0.0:4206
 >> Accepted connection from: 127.0.0.1:54245
+>> curl "127.0.0.1:4206/put?key2=baz"
 >> [INFO] (PUT) KEY: key2 VALUE: baz
+>> curl "127.0.0.1:4206/put?key100=bar"
 >> [INFO] (PUT) KEY: key100 VALUE: bar
+>> curl "127.0.0.1:4206/put?key200=foor"
 >> [INFO] (PUT) KEY: key200 VALUE: foor
+>> curl "127.0.0.1:4206/get/key2"
 >> [INFO] (GET) KEY: key2 VALUE: baz
+>> curl "127.0.0.1:4206/delete/key2"
 >> [INFO] (DELETE) KEY: key2
 ```
 
