@@ -2,7 +2,6 @@
 //! Author: Aryan Suri: <arysuri at proton dot me>
 //! Description: Orchard, is a distributed key-value store in Zig
 //! Licence: MIT
-
 const std = @import("std");
 const map = @import("hashmap.zig");
 pub const OrchardDB = struct {
@@ -31,8 +30,9 @@ pub const OrchardDB = struct {
     }
 
     pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+        if (key.len > 1024) return error.KeySizeExceeded;
         try self.write_to_log("PUT", key, value);
-        try self.hashmap.set(key, value);
+        try self.hashmap.put(key, value);
         self.operations += 1;
         if (self.operations > self.persistant_to) try self.sync();
     }
