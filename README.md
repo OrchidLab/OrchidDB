@@ -16,10 +16,11 @@
   - [x] Write operations to WAL: Ensures durability by logging operations before applying them
   - [x] Implement recovery method: Allows database restoration from WAL in case of crashes
 
-- [ ] **CRITICAL** Refactor to a Config struct
-  - [ ] Create a configuration structure to manage various database options
-  - [ ] Include options for TTL (Time-To-Live), persistence settings, etc.
-  - [ ] Make the database more flexible and easier to configure
+- [X] ~ **CRITICAL** Refactor to a Config struct
+  - [X] Create a configuration structure to manage various database options
+  - [X] Include options for persistence settings, etc.
+  - [ ] TTL options?
+  - [X] Make the database more flexible and easier to configure
 
 - [x] TCP Server Implementation
   - [x] Create a working TCP server to handle client connections
