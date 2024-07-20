@@ -6,7 +6,7 @@ const mem = std.mem;
 pub fn main() !void {
     var allocator = std.heap.GeneralPurposeAllocator(.{}){};
     const gpa = allocator.allocator();
-    var orchard = try OrchardDB.init(gpa, "./.tmp/.orchard.prd1.db", "./.tmp/.orchard.prd1.log", 512);
+    var orchard = try OrchardDB.init(gpa, .{ .backend = .disk, .file_options = .{ .log_path = "./.tmp/.orchard.prd1.log", .disk_path = "./.tmp/.orchard.prd1.db" } });
     defer orchard.deinit();
 
     std.debug.print("Starting server\n", .{});

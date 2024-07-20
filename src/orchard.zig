@@ -2,26 +2,72 @@
 //! Author: Aryan Suri: <arysuri at proton dot me>
 //! Description: Orchard, is a distributed key-value store in Zig
 //! Licence: MIT
-
 const std = @import("std");
 const map = @import("hashmap.zig");
+
+// TODO: Is this better as a Generic, or in this switch format here?
+pub const On = enum { disk, memory };
+pub const Backend = union(enum) { disk: Disk, memory: Memory };
+pub const Options = struct { backend: On = .memory, file_options: FileOptions = .{} };
+
+/// Options for configuring a On Disk Files
+/// Both the WAL Log and Disk File
+/// max_operations: usize = Max operations computed before writing to Disk
+/// log_path []const u8 = Path to WAL file
+/// disk_path []const u8 = Path to DB File
+pub const FileOptions = struct {
+    max_operations: usize = 512,
+    log_path: []const u8 = undefined,
+    disk_path: []const u8 = undefined,
+};
+
 pub const OrchardDB = struct {
+    backend: Backend,
+
+    pub fn init(allocator: std.mem.Allocator, options: Options) !@This() {
+        const backend = switch (options.backend) {
+            .disk => Backend{ .disk = try Disk.init(allocator, options.file_options) },
+            .memory => Backend{ .memory = try Memory.init(allocator) },
+        };
+
+        return .{ .backend = backend };
+    }
+
+    pub fn deinit(self: *OrchardDB) void {
+        switch (self.backend) {
+            inline else => |*on| return on.deinit(),
+        }
+        self.* = undefined;
+    }
+
+    pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+        switch (self.backend) {
+            inline else => |*on| try on.put(key, value),
+        }
+    }
+
+    pub fn get(self: *@This(), key: []const u8) ?[]const u8 {
+        switch (self.backend) {
+            inline else => |*on| return on.get(key),
+        }
+    }
+
+    pub fn delete(self: *@This(), key: []const u8) !void {
+        switch (self.backend) {
+            inline else => |*on| try on.delete(key),
+        }
+    }
+};
+
+pub const Memory = struct {
     hashmap: *map.HashMap,
     allocator: std.mem.Allocator,
 
-    // TODO: Persistance fields should be abstracted to a config to allow for in-memory OR persistant store.
-    operations: usize = 0,
-    persistant_to: usize,
-    log: std.fs.File,
-    disk: std.fs.File,
-
-    pub fn init(allocator: std.mem.Allocator, disk_path: []const u8, log_path: []const u8, persistant_to: usize) !@This() {
-        const disk = try std.fs.cwd().createFile(disk_path, .{ .read = true, .truncate = false });
-        const log = try std.fs.cwd().createFile(log_path, .{ .read = true, .truncate = false });
+    pub fn init(allocator: std.mem.Allocator) !@This() {
         const hashmap = try allocator.create(map.HashMap);
         errdefer allocator.destroy(hashmap);
         hashmap.* = try map.HashMap.init(allocator, 1024, (3 / 4));
-        return .{ .hashmap = hashmap, .allocator = allocator, .disk = disk, .log = log, .persistant_to = persistant_to };
+        return .{ .hashmap = hashmap, .allocator = allocator };
     }
 
     pub fn deinit(self: *@This()) void {
@@ -31,10 +77,50 @@ pub const OrchardDB = struct {
     }
 
     pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+        if (key.len > 1024) return error.KeySizeExceeded;
+        try self.hashmap.put(key, value);
+    }
+
+    pub fn get(self: *@This(), key: []const u8) ?[]const u8 {
+        return self.hashmap.get(key);
+    }
+
+    pub fn delete(self: *@This(), key: []const u8) !void {
+        try self.hashmap.delete(key);
+    }
+};
+
+pub const Disk = struct {
+    hashmap: *map.HashMap,
+    allocator: std.mem.Allocator,
+
+    // TODO: Persistance fields should be abstracted to a config to allow for in-memory OR persistant store.
+    operations: usize = 0,
+    max_operations: usize,
+    log: std.fs.File,
+    disk: std.fs.File,
+
+    pub fn init(allocator: std.mem.Allocator, options: FileOptions) !@This() {
+        const disk = try std.fs.cwd().createFile(options.disk_path, .{ .read = true, .truncate = false });
+        const log = try std.fs.cwd().createFile(options.log_path, .{ .read = true, .truncate = false });
+        const hashmap = try allocator.create(map.HashMap);
+        errdefer allocator.destroy(hashmap);
+        hashmap.* = try map.HashMap.init(allocator, 1024, (3 / 4));
+        return .{ .hashmap = hashmap, .allocator = allocator, .disk = disk, .log = log, .max_operations = options.max_operations };
+    }
+
+    pub fn deinit(self: *@This()) void {
+        self.hashmap.deinit();
+        self.allocator.destroy(self.hashmap);
+        self.* = undefined;
+    }
+
+    pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+        if (key.len > 1024) return error.KeySizeExceeded;
         try self.write_to_log("PUT", key, value);
-        try self.hashmap.set(key, value);
+        try self.hashmap.put(key, value);
         self.operations += 1;
-        if (self.operations > self.persistant_to) try self.sync();
+        if (self.operations > self.max_operations) try self.sync();
     }
 
     pub fn get(self: *@This(), key: []const u8) ?[]const u8 {
@@ -102,19 +188,26 @@ pub const OrchardDB = struct {
     }
 };
 
-test "Key Value Store" {
+test "In Memory" {
     const alloc = std.testing.allocator;
-    var orchard = try OrchardDB.init(alloc, "../.tmp/.orchard.test.db", "../.tmp/.orchard.test.log", 500);
-    defer orchard.deinit();
-    orchard.hashmap.debug("nothing", true);
-    try orchard.recover();
-    orchard.hashmap.debug("should have 6 keys", true);
-    // _ = try orchard.put("key", "1");
-    // orchard.hashmap.debug("key1", true);
-    // _ = try orchard.put("key1", "2");
-    // _ = try orchard.put("key2", "3");
-    // _ = try orchard.put("key3", "4");
-    // try std.testing.expectEqualStrings("1", orchard.get("key").?);
-    // _ = try orchard.delete("key");
-    // try std.testing.expectEqual(null, orchard.get("key"));
+    var instance = try OrchardDB.init(alloc, .{});
+    defer instance.deinit();
+    try instance.put("key2", "value2");
+    var e = instance.get("key2");
+    std.debug.print("{any}\n", .{e});
+    _ = try instance.delete("key2");
+    e = instance.get("key2");
+    std.debug.print("{any}\n", .{e});
+}
+
+test "File" {
+    const alloc = std.testing.allocator;
+    var instance = try OrchardDB.init(alloc, .{ .backend = .disk, .file_options = .{ .log_path = "../.tmp/.orchard.prd2.log", .disk_path = "../.tmp/.orchard.prd2.db" } });
+    defer instance.deinit();
+    try instance.put("key", "value");
+    var e = instance.get("key");
+    std.debug.print("{any}\n", .{e});
+    _ = try instance.delete("key");
+    e = instance.get("key");
+    std.debug.print("{any}\n", .{e});
 }
