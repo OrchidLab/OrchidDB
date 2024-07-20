@@ -103,8 +103,13 @@
   - [ ] Research and potentially implement more complex data types
   - [ ] Look into DenoKV for inspiration on advanced features
 
+## References
 
-#### Code is Human Made 
-<img style="width:150px; float:right;" src="https://humanmademark.com/black-logo.png" alt="Human Made Trademark"></img>
+- https://ziglang.org/documentation/master
+- https://www.pedaldrivenprogramming.com/2024/03/writing-a-http-server-in-zig/
+- https://github.com/jetzig-framework/jetkv
+
+<hr>
+<img style="margin-top: 50px; width:150px; float:right;" src="https://humanmademark.com/black-logo.png" alt="Human Made Trademark"></img>
 
 <img style="width:150px; float:right;" src="https://humanmademark.com/white-logo.png" alt="Human Made Trademark"></img>
