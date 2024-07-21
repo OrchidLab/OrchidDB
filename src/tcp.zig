@@ -41,10 +41,10 @@ pub fn http() !void {
             "Content-Length: {}\r\n" ++
             "\r\n";
         _ = try conn.stream.writer().print(httpHead, .{ "text", request.length + 4 });
-        if (std.mem.eql(u8, request.operation, "PUT")) {
-            try orchard.put(request.key, request.value.?);
-            std.debug.print("[INFO] ({s}) KEY: {s} VALUE: {s}\n", .{ request.operation, request.key, request.value.? });
-            _ = try conn.stream.writer().print("[INFO] ({s}) KEY: {s} VALUE: {s}\n", .{ request.operation, request.key, request.value.? });
+        if (std.mem.eql(u8, request.operation, "SET")) {
+            try orchard.set(request.key, request.value.?);
+            std.debug.print("# OK\n", .{});
+            _ = try conn.stream.writer().print("# OK\n", .{});
         } else if (std.mem.eql(u8, request.operation, "GET")) {
             if (orchard.get(request.key)) |value| {
                 std.debug.print("[INFO] ({s}) KEY: {s} VALUE: {s}\n", .{ request.operation, request.key, value });
@@ -52,11 +52,11 @@ pub fn http() !void {
             }
         } else if (std.mem.eql(u8, request.operation, "DELETE")) {
             try orchard.delete(request.key);
-            std.debug.print("[INFO] ({s}) KEY: {s}\n", .{ request.operation, request.key });
-            _ = try conn.stream.writer().print("[INFO] ({s}) KEY: {s}\n", .{ request.operation, request.key });
+            std.debug.print("# OK\n", .{});
+            _ = try conn.stream.writer().print("# OK\n", .{});
         }
 
-        // TODO: Perform PUT and GET operations on OrchardDB from the server
+        // TODO: Perform SET and GET operations on OrchardDB from the server
         _ = conn.stream.close();
     } else |err| {
         std.debug.print("error in accept: {}\n", .{err});
@@ -82,8 +82,8 @@ pub fn parseRaw(buffer: []const u8) !Request {
     if (!mem.eql(u8, method, "GET")) return error.MethodNotGET;
     request.method = method;
     request.path = requestIter.next() orelse return error.MalformedPath;
-    if (std.mem.eql(u8, request.path[0..4], "/put")) {
-        request.operation = "PUT";
+    if (std.mem.eql(u8, request.path[0..4], "/set")) {
+        request.operation = "SET";
         var pairs = mem.splitScalar(u8, request.path[5..], '=');
         request.key = pairs.next() orelse return error.KeyNotFound;
         request.value = pairs.next() orelse return error.ValueNotFound;
@@ -119,7 +119,7 @@ test "OrchardDB" {
         } else {
             const key = try std.fmt.bufPrint(&keyb, "KEY{d}", .{i});
             const value = try std.fmt.bufPrint(&valb, "VAL{d}", .{i});
-            try orchard.put(key, value);
+            try orchard.set(key, value);
         }
     }
     std.debug.print("[INFO] Insert ended. \n", .{});

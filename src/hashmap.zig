@@ -40,7 +40,7 @@ pub const HashMap = struct {
         return null;
     }
 
-    pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+    pub fn set(self: *@This(), key: []const u8, value: []const u8) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
         if (self.size() >= self.array.len * 3 / 4) try self.grow(self.array.len * 2);
@@ -118,19 +118,19 @@ test "Hash Map" {
     var hm = try HashMap.init(allocator, 6, (3 / 4));
     defer hm.deinit();
     {
-        try hm.put("key1", "4");
-        try hm.put("key2", "4");
-        try hm.put("key3", "4");
-        try hm.put("key4", "4");
-        try hm.put("key5", "4");
-        try hm.put("key6", "4");
-        try hm.put("key7", "4");
-        try hm.put("key8", "4");
+        try hm.set("key1", "4");
+        try hm.set("key2", "4");
+        try hm.set("key3", "4");
+        try hm.set("key4", "4");
+        try hm.set("key5", "4");
+        try hm.set("key6", "4");
+        try hm.set("key7", "4");
+        try hm.set("key8", "4");
         std.time.sleep(1_000_000_000);
-        try hm.put("key8", "10");
-        try hm.put("key9", "4");
-        try hm.put("key10", "4");
-        try hm.put("key11", "4");
+        try hm.set("key8", "10");
+        try hm.set("key9", "4");
+        try hm.set("key10", "4");
+        try hm.set("key11", "4");
         try std.testing.expectEqualStrings("10", hm.get("key8").?);
         try std.testing.expectEqual(null, hm.get("key12"));
         _ = try hm.delete("key8");

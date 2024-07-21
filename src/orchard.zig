@@ -40,9 +40,9 @@ pub const OrchardDB = struct {
         self.* = undefined;
     }
 
-    pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+    pub fn set(self: *@This(), key: []const u8, value: []const u8) !void {
         switch (self.backend) {
-            inline else => |*on| try on.put(key, value),
+            inline else => |*on| try on.set(key, value),
         }
     }
 
@@ -76,9 +76,9 @@ pub const Memory = struct {
         self.* = undefined;
     }
 
-    pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+    pub fn set(self: *@This(), key: []const u8, value: []const u8) !void {
         if (key.len > 1024) return error.KeySizeExceeded;
-        try self.hashmap.put(key, value);
+        try self.hashmap.set(key, value);
     }
 
     pub fn get(self: *@This(), key: []const u8) ?[]const u8 {
@@ -115,10 +115,10 @@ pub const Disk = struct {
         self.* = undefined;
     }
 
-    pub fn put(self: *@This(), key: []const u8, value: []const u8) !void {
+    pub fn set(self: *@This(), key: []const u8, value: []const u8) !void {
         if (key.len > 1024) return error.KeySizeExceeded;
-        try self.write_to_log("PUT", key, value);
-        try self.hashmap.put(key, value);
+        try self.write_to_log("SET", key, value);
+        try self.hashmap.set(key, value);
         self.operations += 1;
         if (self.operations > self.max_operations) try self.sync();
     }
@@ -159,7 +159,7 @@ pub const Disk = struct {
             const key = token.next() orelse continue;
             const value = token.next() orelse continue;
 
-            if (std.mem.eql(u8, operation, "PUT")) {
+            if (std.mem.eql(u8, operation, "SET")) {
                 try self.hashmap.set(key, value);
             } else if (std.mem.eql(u8, operation, "DELETE")) {
                 self.hashmap.delete(key) catch {};
@@ -192,7 +192,7 @@ test "In Memory" {
     const alloc = std.testing.allocator;
     var instance = try OrchardDB.init(alloc, .{});
     defer instance.deinit();
-    try instance.put("key2", "value2");
+    try instance.set("key2", "value2");
     var e = instance.get("key2");
     std.debug.print("{any}\n", .{e});
     _ = try instance.delete("key2");
@@ -204,7 +204,7 @@ test "File" {
     const alloc = std.testing.allocator;
     var instance = try OrchardDB.init(alloc, .{ .backend = .disk, .file_options = .{ .log_path = "../.tmp/.orchard.prd2.log", .disk_path = "../.tmp/.orchard.prd2.db" } });
     defer instance.deinit();
-    try instance.put("key", "value");
+    try instance.set("key", "value");
     var e = instance.get("key");
     std.debug.print("{any}\n", .{e});
     _ = try instance.delete("key");
