@@ -53,6 +53,11 @@
   - [x] Implement /PUT and /GET operations over the network
   - [x] Integrate OrchardDB instance with the TCP server
 
+- [ ] REPL
+  - [X] Basic REPL implementation
+  - [ ] Enum matching
+  - [ ] Ergonomic repl
+
 - [ ] **CRITICAL** Batch Operations
   - [ ] Allow multiple operations to be performed in a single request
   - [ ] Improve efficiency for bulk inserts or updates
