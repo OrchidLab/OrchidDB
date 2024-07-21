@@ -28,7 +28,7 @@
 
 - [ ] REPL
   - [X] Basic REPL implementation
-  - [] Enum matching
+  - [ ] Enum matching
   - [ ] Ergonomic repl
 
 - [ ] **CRITICAL** Batch Operations
