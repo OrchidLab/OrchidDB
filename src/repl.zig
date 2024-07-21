@@ -19,7 +19,7 @@ pub fn repl() !void {
                     try writer.print("[INFO] Key ({s}) does not exist in DB\n# ", .{line[4..]});
                     break;
                 };
-                try writer.print("[INFO] GET {s}->{s}\n# ", .{ line[4..], get });
+                try writer.print("# {s}\n# ", .{get});
                 break;
             } else if (std.mem.containsAtLeast(u8, line, 1, "PUT")) {
                 if (line.len <= 3) break;
@@ -33,11 +33,11 @@ pub fn repl() !void {
                     break;
                 };
                 _ = try orchard.put(key, value);
-                try writer.print("[INFO] PUT {s}->{s}\n# ", .{ key, value });
+                try writer.print("# OK\n# ", .{});
             } else if (std.mem.containsAtLeast(u8, line, 1, "DELETE")) {
                 if (line.len <= 6) break;
                 if (orchard.delete(line[7..])) {
-                    try writer.print("[INFO] DELETE {s}\n# ", .{line[7..]});
+                    try writer.print("# OK\n# ", .{});
                 } else |_| {
                     try writer.print("[INFO] Key ({s}) does not exist in DB\n# ", .{line[7..]});
                     break;

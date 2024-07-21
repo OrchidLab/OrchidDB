@@ -35,12 +35,17 @@
  PUT key value
  DELETE key
  exit   help
-# PUT x y
-[INFO] PUT x->y
 # GET x
-[INFO] GET x->y
+[INFO] Key (x) does not exist in DB
+# PUT x y
+# OK
+# GET x
+# y
 # DELETE x
-[INFO] DELETE x
+# OK
+# GET x
+[INFO] Key (x) does not exist in DB
+# exit
 ```
 
 ## Architecture
