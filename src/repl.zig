@@ -4,9 +4,9 @@ const db = @import("orchard.zig");
 const Command = enum {
     GET,
     SET,
-    DELETE,
     HELP,
     EXIT,
+    DELETE,
     UNKNOWN,
 
     pub fn parse(line: []const u8) @This() {
@@ -27,14 +27,14 @@ pub fn repl() !void {
 
     var writer = std.io.getStdOut().writer();
     var reader = std.io.getStdIn().reader();
-    _ = try writer.print("[INFO] OrchardDB In-Memory Instance\n[INFO] Type `help` for a list of operatons\n# ", .{});
+    _ = try writer.print("[INFO] OrchardDB In-Memory Instance\n[INFO] Type `help` for a list of operatons\n", .{});
     outer: while (true) {
         var buffer: [1024]u8 = undefined;
+        try writer.print("# ", .{});
         while (try reader.readUntilDelimiterOrEof(&buffer, '\n')) |line| {
             const command = Command.parse(line);
             switch (command) {
                 .GET => {
-                    if (line.len < 4) break;
                     const get = orchard.get(line[4..]) orelse {
                         try writer.print("[INFO] Key ({s}) does not exist in DB\n# ", .{line[4..]});
                         break;
@@ -45,7 +45,7 @@ pub fn repl() !void {
                     if (line.len < 4) break;
                     var kv = std.mem.splitScalar(u8, line[4..], ' ');
                     const key = kv.next() orelse {
-                        _ = try writer.print("[INFO] Key not inputted\n# ", .{});
+                        _ = try writer.print("[INFO] Key not inputted\n", .{});
                         break;
                     };
                     const value = kv.next() orelse {
@@ -66,7 +66,7 @@ pub fn repl() !void {
                 },
                 .HELP => try writer.print("[INFO] Operations:\n# GET key\n# SET key value\n# DELETE key\n# exit\n# help\n# ", .{}),
                 .EXIT => break :outer,
-                else => try writer.print("[INFO] Invalid Command\n# ", .{}),
+                .UNKNOWN => try writer.print("[INFO] Invalid Command\n# ", .{}),
             }
         }
     }
