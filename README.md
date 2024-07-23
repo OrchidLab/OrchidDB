@@ -77,10 +77,10 @@
   - [x] Implement /PUT and /GET operations over the network
   - [x] Integrate OrchardDB instance with the TCP server
 
-- [ ] REPL
+- [X] REPL
   - [X] Basic REPL implementation
-  - [ ] Enum matching
-  - [ ] Ergonomic repl
+  - [X] Enum matching
+  - [X] Ergonomic repl
 
 - [ ] **CRITICAL** Batch Operations
   - [ ] Allow multiple operations to be performed in a single request

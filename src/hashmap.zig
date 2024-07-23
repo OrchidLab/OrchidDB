@@ -5,30 +5,6 @@
 //! Note: This HashMap is a derivative of my HashMap source file : https://raw.githubusercontent.com/aryanrsuri/map/master/src/map.zig
 
 const std = @import("std");
-pub const NamespacedHashMap = struct {
-    data: std.ArrayList(?Entry),
-    allocator: std.mem.Allocator,
-
-    const Entry = struct { key: [][]const u8, value: []const u8 };
-    pub fn init(allocator: std.mem.Allocator, capacity: usize) !@This() {
-        const data = try std.ArrayList(?Entry).initCapacity(allocator, capacity);
-        return .{
-            .data = data,
-            .allocator = allocator,
-        };
-    }
-    pub fn deinit(self: *@This()) void {
-        self.data.deinit();
-        self.* = undefined;
-    }
-
-    pub fn set(self: *@This(), key: [][]const u8, value: []const u8) !void {
-        // const k = try self.allocator.dupe(u8, key);
-        // const v = try self.allocator.dupe(u8, value);
-        _ = try self.data.insert(0, Entry{ .key = key, .value = value });
-    }
-};
-
 pub const HashMap = struct {
     array: []?Entry,
     allocator: std.mem.Allocator,
@@ -159,22 +135,5 @@ test "Hash Map" {
         try std.testing.expectEqual(null, hm.get("key12"));
         _ = try hm.delete("key8");
         hm.debug("HashMap", false);
-    }
-}
-
-test "NamespacedHashMap" {
-    const allocator = std.testing.allocator;
-    var hm = try NamespacedHashMap.init(allocator, 100);
-    defer hm.deinit();
-    {
-        var a3 = [_][]const u8{ "users", "3", "pref" };
-        var a2 = [_][]const u8{ "users", "2", "pref" };
-        var a1 = [_][]const u8{ "users", "1", "pref" };
-
-        try hm.set(&a3, "234oiu234o5");
-        try hm.set(&a2, "234oiu234o5");
-        try hm.set(&a1, "234oiu234o5");
-        // Will Fail below
-        // try std.testing.expectEqualStrings("234oiu234o5", hm.get(a3).?);
     }
 }

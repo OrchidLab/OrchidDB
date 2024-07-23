@@ -19,12 +19,7 @@ const Command = enum {
     }
 };
 
-pub fn repl() !void {
-    var allocator = std.heap.GeneralPurposeAllocator(.{}){};
-    const gpa = allocator.allocator();
-    var orchard = try db.OrchardDB.init(gpa, .{});
-    defer orchard.deinit();
-
+pub fn repl(orchard: *db.OrchardDB) !void {
     var writer = std.io.getStdOut().writer();
     var reader = std.io.getStdIn().reader();
     _ = try writer.print("[INFO] OrchardDB In-Memory Instance\n[INFO] Type `help` for a list of operatons\n", .{});
