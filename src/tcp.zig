@@ -56,7 +56,6 @@ pub fn http() !void {
             _ = try conn.stream.writer().print("# OK\n", .{});
         }
 
-        // TODO: Perform SET and GET operations on OrchardDB from the server
         _ = conn.stream.close();
     } else |err| {
         std.debug.print("error in accept: {}\n", .{err});
