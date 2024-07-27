@@ -1,4 +1,3 @@
-![OrchardDB_Dark_V1_Banner](https://github.com/user-attachments/assets/e8132d95-b148-4048-a662-0037e2fea008)
 
 
 <!-- <div style="display: flex; flex-direction: row;"> -->
